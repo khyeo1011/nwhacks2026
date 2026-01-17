@@ -1,9 +1,19 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import random
+import os
+from dotenv import load_dotenv
+from src.DBHelper import DBHelper
+
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
+
+db_helper = DBHelper(
+    url=os.getenv('SUPABASE_URL'),
+    key=os.getenv('SUPABASE_KEY')
+)
 
 PROMPTS = [
     ("a red car", "not a red car"),
@@ -17,11 +27,21 @@ def register():
     user_id = data.get('userID')
     password = data.get('password')
 
-    # TODO: Call DBHelper to insert user
+    if not user_id or not password:
+        return jsonify({
+            'message': 'userID and password are required'
+        }), 400
+
+    user_data = {
+        'id': user_id,
+        'password': password
+    }
+    
+    result = db_helper.insert_user(user_data)
     
     return jsonify({
         'message': 'User registered successfully',
-        'user_id': user_id
+        'user_id': result.get('id')
     }), 201
 
 @app.route('/api/login', methods=['POST'])
@@ -30,7 +50,22 @@ def login():
     user_id = data.get('userID')
     password = data.get('password')
 
-    # TODO: Call DBHelper to check if user exists via get user
+    if not user_id or not password:
+        return jsonify({
+            'message': 'userID and password are required'
+        }), 400
+
+    user = db_helper.get_user(user_id)
+    
+    if not user:
+        return jsonify({
+            'message': 'Invalid userID or password'
+        }), 401
+    
+    if user.get('password') != password:
+        return jsonify({
+            'message': 'Invalid userID or password'
+        }), 401
     
     return jsonify({
         'message': 'Login successful'
