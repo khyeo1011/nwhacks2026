@@ -13,7 +13,7 @@ class DBHelper:
         return response.data[0] if response.data else {}
 
     def get_user(self, user_id: str) -> Optional[Dict[str, Any]]:
-        response = self.client.table("users").select("*").eq("id", user_id).execute()
+        response = self.client.table("users").select("*").eq("userid", user_id).execute()
         return response.data[0] if response.data else None
 
     def update_participants(self, quest_id: str, participant_updates: Dict[str, Any]) -> List[Dict[str, Any]]:

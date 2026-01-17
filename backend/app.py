@@ -33,7 +33,7 @@ def register():
         }), 400
 
     user_data = {
-        'id': user_id,
+        'userid': user_id,
         'password': password
     }
     
@@ -41,7 +41,7 @@ def register():
     
     return jsonify({
         'message': 'User registered successfully',
-        'user_id': result.get('id')
+        'user_id': result.get('userid')
     }), 201
 
 @app.route('/api/login', methods=['POST'])
