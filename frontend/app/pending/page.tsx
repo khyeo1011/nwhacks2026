@@ -2,12 +2,15 @@
 
 import { Button } from "@/components/ui/button"
 import { getPendingQuests } from "@/lib/api"
+import { useRouter } from "next/navigation"
 
 const pendingQuests = getPendingQuests("testUserId")
 
 export default function PendingPage() {
-  const handleQuestClick = (hostId: string) => {
-    console.log(`Quest clicked: ${hostId}`)
+  const router = useRouter()
+
+  const handleQuestClick = (questId: string) => {
+    router.push(`/${questId}`)
   }
 
   return (
@@ -21,7 +24,7 @@ export default function PendingPage() {
               key={quest.questId}
               variant="outline"
               className="w-full justify-start text-left bg-transparent"
-              onClick={() => handleQuestClick(quest.hostId)}
+              onClick={() => handleQuestClick(quest.questId)}
             >
               {quest.hostId}
             </Button>
