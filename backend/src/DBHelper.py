@@ -15,8 +15,8 @@ class DBHelper:
         response = self.client.table("users").select("*").eq("userid", user_id).execute()
         return response.data[0] if response.data else None
 
-    def update_participants(self, quest_id: str, participant_updates: Dict[str, Any]) -> List[Dict[str, Any]]:
-        response = self.client.table("participants").update(participant_updates).eq("questid", quest_id).execute()
+    def update_participants(self, quest_id: str, participant_updates: Dict[str, Any], user_id: str) -> List[Dict[str, Any]]:
+        response = self.client.table("participants").update(participant_updates).eq("questid", quest_id).eq("userid", user_id).execute()
         return response.data
 
     def insert_quest(self, quest_data: Dict[str, Any]) -> Dict[str, Any]:

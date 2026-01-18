@@ -2,20 +2,10 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import random
 import os
-import base64
 from dotenv import load_dotenv
 from src.DBHelper import DBHelper
 
 load_dotenv()
-
-def serialize_image_to_bytea(image_data):
-    if image_data.startswith('data:image'):
-        image_data = image_data.split(',')[1]
-    
-    binary_data = base64.b64decode(image_data)
-    postgres_hex = "\\x" + binary_data.hex()
-    
-    return postgres_hex
 
 app = Flask(__name__)
 CORS(app)
@@ -34,7 +24,7 @@ PROMPTS = [
 @app.route('/api/register', methods=['POST'])
 def register():
     data = request.get_json()
-    user_id = data.get('userID')
+    user_id = data.get('userId')
     password = data.get('password')
 
     if not user_id or not password:
@@ -51,13 +41,13 @@ def register():
     
     return jsonify({
         'message': 'User registered successfully',
-        'user_id': result.get('userid')
+        'userId': result.get('userid')
     }), 201
 
 @app.route('/api/login', methods=['POST'])
 def login():
     data = request.get_json()
-    user_id = data.get('userID')
+    user_id = data.get('userId')
     password = data.get('password')
 
     if not user_id or not password:
@@ -83,11 +73,11 @@ def login():
 
 @app.route('/api/pending-quests', methods=['GET'])
 def get_pending_quests():
-    user_id = request.args.get('userID')
+    user_id = request.args.get('userId')
 
     if not user_id:
         return jsonify({
-            'message': 'userID is required'
+            'message': 'userId is required'
         }), 400
 
     participant_rows = db_helper.get_quests_pending(user_id)
@@ -102,20 +92,20 @@ def get_pending_quests():
         quest = db_helper.get_quest(quest_id)
         if quest:
             formatted_quests.append({
-                'quest_id': quest.get('questid'),
+                'questId': quest.get('questid'),
                 'prompt': quest.get('prompt'),
-                'host_id': quest.get('hostid')
+                'hostId': quest.get('hostid')
             })
     
     return jsonify({'quests': formatted_quests}), 200
 
 @app.route('/api/completed-quests', methods=['GET'])
 def get_completed_quests():
-    user_id = request.args.get('userID')
+    user_id = request.args.get('userId')
 
     if not user_id:
         return jsonify({
-            'message': 'userID is required'
+            'message': 'userId is required'
         }), 400
 
     participant_rows = db_helper.get_quests_completed(user_id)
@@ -130,9 +120,9 @@ def get_completed_quests():
         quest = db_helper.get_quest(quest_id)
         if quest:
             formatted_quests.append({
-                'quest_id': quest.get('questid'),
+                'questId': quest.get('questid'),
                 'prompt': quest.get('prompt'),
-                'host_id': quest.get('hostid')
+                'hostId': quest.get('hostid')
             })
     
     return jsonify({'quests': formatted_quests}), 200
@@ -141,8 +131,8 @@ def get_completed_quests():
 def create_quest():
     data = request.get_json()
     prompt = data.get('prompt')
-    host_id = data.get('host_id')
-    user_ids = data.get('user_ids')
+    host_id = data.get('hostId')
+    user_ids = data.get('userIds')
     image = data.get('image')
     time = data.get('time')
     
@@ -160,8 +150,6 @@ def create_quest():
     participants_data = []
 
     # TODO: Use CLIP for score (confidence score)
-
-    serialized_image = serialize_image_to_bytea(image)
     
     for user_id in user_ids:
         participant = {
@@ -169,7 +157,7 @@ def create_quest():
             'userid': user_id,
             'score': None, # TODO
             'timetaken': time if user_id == host_id else None,
-            'photo': serialized_image if user_id == host_id else None
+            'photo': image if user_id == host_id else None
         }
         participants_data.append(participant)
     
@@ -177,7 +165,7 @@ def create_quest():
     
     return jsonify({
         'message': 'Quest created successfully',
-        'quest_id': quest_id
+        'questId': quest_id
     }), 201
 
 @app.route('/api/get-prompt', methods=['GET'])
@@ -192,12 +180,20 @@ def get_prompt():
 @app.route('/api/complete-quest', methods=['POST'])
 def complete_quest():
     data = request.get_json()
-    quest_id = data.get('quest_id')
-    user_id = data.get('user_id')
-    image = data.get('image')
+    quest_id = data.get('questId')
+    user_id = data.get('userId')
+    photo = data.get('photo')
     time = data.get('time')
-
-    # TODO: Call DBHelper to update participant
+    
+    # TODO: Use CLIP to calculate score based on image and prompt
+    
+    update_data = {
+        'score': None,
+        'timetaken': time,
+        'photo': photo
+    }
+    
+    db_helper.update_participants(quest_id, update_data, user_id)
     
     return jsonify({
         'message': 'Quest completed successfully',
@@ -209,9 +205,9 @@ def get_quest_details(quest_id):
     # TODO: Call DBHelper to get quest details
     
     return jsonify({
-        'quest_id': quest_id,
+        'questId': quest_id,
         'prompt': None,
-        'host_id': None,
+        'hostId': None,
         'date': None,
         'participants': []
     }), 200
