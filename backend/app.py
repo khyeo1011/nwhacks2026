@@ -147,9 +147,6 @@ def create_quest():
     quest_result = db_helper.insert_quest(quest_data)
     quest_id = quest_result.get('questid')
     
-    if host_id not in user_ids:
-        user_ids.append(host_id)
-    
     participants_data = []
 
     score = get_clip_score(image, prompt)
@@ -213,15 +210,64 @@ def complete_quest():
 
 @app.route('/api/quest-details/<int:quest_id>', methods=['GET'])
 def get_quest_details(quest_id):
-    # TODO: Call DBHelper to get quest details
+    # 1. Call DBHelper (Convert int to str because DBHelper expects str)
+    quest_data = db_helper.get_quest_details(str(quest_id))
     
-    return jsonify({
-        'questId': quest_id,
-        'prompt': None,
-        'hostId': None,
-        'date': None,
-        'participants': []
-    }), 200
+    # 2. Handle case where quest is not found
+    if not quest_data:
+        return jsonify({"error": "Quest not found"}), 404
+
+    # 3. Map Participants from DB format to Frontend format
+    #    DB: timetaken -> Frontend: time
+    #    DB: userid    -> Frontend: userId
+    #    DB: questid   -> Frontend: questId
+    mapped_participants = []
+    
+    # We need to calculate the winner. 
+    # Logic: Highest score wins. If tie, lowest time wins.
+    winner_id = None
+    best_score = -1
+    best_time = float('inf')
+
+    raw_participants = quest_data.get('participants', [])
+
+    for p in raw_participants:
+        # Create the participant object for frontend
+        mapped_p = {
+            'questId': p.get('questid'),
+            'userId': p.get('userid'),
+            'score': p.get('score'),
+            'time': p.get('timetaken'), # Mapping timetaken -> time
+            'photo': p.get('photo')
+        }
+        mapped_participants.append(mapped_p)
+
+        # Logic to determine winner
+        # Skip if score is None (participant hasn't finished)
+        p_score = p.get('score')
+        p_time = p.get('timetaken')
+        
+        if p_score is not None:
+            # Check for higher score OR (equal score AND faster time)
+            if p_score > best_score:
+                best_score = p_score
+                best_time = p_time
+                winner_id = p.get('userid')
+            elif p_score == best_score and p_time < best_time:
+                best_time = p_time
+                winner_id = p.get('userid')
+
+    # 4. Construct final object matching QuestDetails interface
+    response_data = {
+        'questId': quest_data.get('questid'),
+        'prompt': quest_data.get('prompt'),
+        'hostId': quest_data.get('hostid'),
+        'date': quest_data.get('datecreated'), # Mapping datecreated -> date
+        'winner': winner_id,                   # Calculated field
+        'participants': mapped_participants
+    }
+    
+    return jsonify(response_data), 200
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
