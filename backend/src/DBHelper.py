@@ -37,7 +37,7 @@ class DBHelper:
     
     def get_quests_pending(self, user_id: str) -> List[Dict[str, Any]]:
         p1_response = self.client.table("participants") \
-            .select("*") \
+            .select("questid, userid, score, time") \
             .eq("userid", user_id) \
             .execute()
         
@@ -48,7 +48,7 @@ class DBHelper:
     
     def get_quests_completed(self, user_id: str) -> List[Dict[str, Any]]:
         p1_response = self.client.table("participants") \
-            .select("*") \
+            .select("questid, userid, score, time") \
             .eq("userid", user_id) \
             .execute()
 
