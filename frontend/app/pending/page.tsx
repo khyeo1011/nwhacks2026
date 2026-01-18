@@ -15,13 +15,31 @@ import {
 import { getPendingQuests } from "@/utils/api"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-
-const pendingQuests = getPendingQuests("testUserId")
+import { useAuth } from "@/contexts/AuthContext"
+import { useContext } from "react"
+import { useEffect } from "react"
+import { Quest } from "@/types/types"
 
 export default function PendingPage() {
   const router = useRouter()
   const [selectedQuestId, setSelectedQuestId] = useState<number | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const auth = useAuth();
+  const [pendingQuests, setPendingQuests] = useState<Quest[]>([]);
+
+  const fetchData = async () => {
+    if (auth.isAuthenticated && auth.userId) {
+      const quests = await getPendingQuests(auth.userId);
+      console.log(quests);
+      setPendingQuests(pendingQuests);
+    }
+  };
+
+
+
+  useEffect(() => {
+    fetchData()
+  }, []);
 
   const handleQuestClick = (questId: number) => {
     setSelectedQuestId(questId)
@@ -43,8 +61,8 @@ export default function PendingPage() {
   return (
     <main className="min-h-screen bg-background px-4 py-6">
       <div className="mx-auto max-w-md">
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           className="mb-4"
           onClick={() => router.push("/")}
         >

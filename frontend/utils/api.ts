@@ -26,17 +26,11 @@ export async function login(userId: string, password: string) {
     return response.json()
 }
 
-export function getPendingQuests(userId: string): Quest[] {
-    const sample = 
-        [
-            { questId: 1, prompt: "test", hostId: "testHost1", date: Date.now() },
-            { questId: 2, prompt: "test", hostId: "testHost2", date: Date.now() },
-            { questId: 3, prompt: "test", hostId: "testHost3", date: Date.now() },
-            { questId: 4, prompt: "test", hostId: "testHost4", date: Date.now() },
-            { questId: 5, prompt: "test", hostId: "testHost5", date: Date.now() },
-        ]
-
-    return sample
+export async function getPendingQuests(userId: string) : Promise<Quest[]> {
+    const response = await fetch(url + `/api/pending-quests?userId=${userId}`)
+    
+    console.log(response.json());
+    return [];
 }
 
 export function getCompletedQuests(userId: string): Quest[] {
