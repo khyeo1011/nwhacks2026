@@ -4,7 +4,7 @@ import random
 import os
 from dotenv import load_dotenv
 from src.DBHelper import DBHelper
-
+from utils import get_clip_score
 load_dotenv()
 
 app = Flask(__name__)
@@ -147,20 +147,31 @@ def create_quest():
     quest_result = db_helper.insert_quest(quest_data)
     quest_id = quest_result.get('questid')
     
+    if host_id not in user_ids:
+        user_ids.append(host_id)
+    
     participants_data = []
 
-    # TODO: Use CLIP for score (confidence score)
+    score = get_clip_score(image, prompt)
     
     for user_id in user_ids:
         participant = {
             'questid': quest_id,
             'userid': user_id,
-            'score': None, # TODO
-            'timetaken': time if user_id == host_id else None,
-            'photo': image if user_id == host_id else None
+            'score': None,
+            'timetaken': None,
+            'photo': None
         }
         participants_data.append(participant)
     
+    host = {
+        'questid': quest_id,
+        'userid': host_id,
+        'score': score,
+        'timetaken': time,
+        'photo': image
+    }
+    participants_data.append(host)
     db_helper.insert_participants(participants_data)
     
     return jsonify({
