@@ -44,7 +44,7 @@ class DBHelper:
         if not p1_response.data:
             return []
 
-        return [row for row in p1_response.data if row['score'] is None or row['score'] == -1]
+        return [row for row in p1_response.data if row['score'] is None]
     
     def get_quests_completed(self, user_id: str) -> List[Dict[str, Any]]:
         p1_response = self.client.table("participants") \
