@@ -28,7 +28,7 @@ export default function CompletedPage() {
       setCompletedQuests(quests);
     }
     setIsLoading(false);
-  };  
+  };
 
   useEffect(() => {
     fetchData()
@@ -62,7 +62,16 @@ export default function CompletedPage() {
                       className="w-full justify-start text-left bg-transparent"
                       onClick={() => handleQuestClick(quest.questId)}
                     >
-                      Invited by : {quest.hostId} | ({quest.prompt})
+                      <div className="flex justify-between items-center w-full">
+                        <span>Invited By: {quest.hostId}</span>
+                        <span className="text-sm text-muted-foreground">
+                          {new Date(quest.date * 1000).toLocaleDateString('en-US', { 
+                            year: 'numeric', 
+                            month: 'short', 
+                            day: 'numeric' 
+                          })}
+                        </span>
+                      </div>
                     </Button>
                   ))}
                   {completedQuests.length === 0 && (
