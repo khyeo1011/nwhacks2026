@@ -3,13 +3,12 @@
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
-import { useState, useEffect } from "react"
+import { useEffect } from "react"
 import { getPoints } from "@/utils/api"
 
 export default function Page() {
   const router = useRouter()
-  const { userId, logout } = useAuth()
-  const [points, setPoints] = useState(0)
+  const { userId, logout, points, setPoints } = useAuth()
 
   useEffect(() => {
     if (userId) {
@@ -24,11 +23,11 @@ export default function Page() {
       }
 
       fetchPoints() // Initial fetch
-      const interval = setInterval(fetchPoints, 10000) // Poll every 10 seconds
+      const interval = setInterval(fetchPoints, 30000) // Poll every 10 seconds
 
       return () => clearInterval(interval) // Cleanup on unmount
     }
-  }, [userId])
+  }, [userId, setPoints])
 
   return (
     <main className="min-h-screen bg-background flex items-center justify-center px-4">

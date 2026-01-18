@@ -8,12 +8,15 @@ interface AuthContextType {
     login: (userId: string) => void
     logout: () => void
     isAuthenticated: boolean
+    points: number
+    setPoints: (points: number) => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [userId, setUserId] = useState<string | null>(null)
+    const [points, setPoints] = useState(0);
     const [isLoading, setIsLoading] = useState(true)
     const router = useRouter()
     const pathname = usePathname()
@@ -57,7 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     return (
-        <AuthContext.Provider value={{ userId, login, logout, isAuthenticated: !!userId }}>
+        <AuthContext.Provider value={{ userId, login, logout, isAuthenticated: !!userId, points, setPoints }}>
             {children}
         </AuthContext.Provider>
     )
