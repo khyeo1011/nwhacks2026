@@ -74,7 +74,7 @@ export default function Page() {
                     className="text-2xl tracking-tighter opacity-80 leading-none mb-1" 
                     style={{ fontFamily: "var(--font-heading)" }}
                 >
-                  Welcome, {userId}
+                  Greetings, {userId}
                 </p>
                 <p 
                     className="text-4xl text-[#5d4037] leading-none" 

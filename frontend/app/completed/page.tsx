@@ -65,7 +65,7 @@ export default function CompletedPage() {
                                             <div className="flex flex-col w-full">
                                               <div>Artifact: {quest.prompt}</div>
                                               <div className="flex justify-between w-full text-xs text-muted-foreground mb-2">
-                                                <span className="text-black">Invited By: {quest.hostId}</span>
+                                                <span className="text-sm text-black">Invited By: {quest.hostId}</span>
                                                 <span>
                                                   {new Date(quest.date * 1000).toLocaleDateString('en-US', {
                                                     year: 'numeric',
