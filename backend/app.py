@@ -5,6 +5,7 @@ import os
 from dotenv import load_dotenv
 from src.DBHelper import DBHelper
 from utils import get_clip_score
+from prompts import PROMPTS
 load_dotenv()
 
 app = Flask(__name__)
@@ -14,12 +15,6 @@ db_helper = DBHelper(
     url=os.getenv('SUPABASE_URL'),
     key=os.getenv('SUPABASE_KEY')
 )
-
-PROMPTS = [
-    ("a red car", "not a red car"),
-    ("a fluffy cat", "not a fluffy cat"),
-    ("a snowy mountain", "not a snowy mountain")
-]
 
 @app.route('/api/register', methods=['POST'])
 def register():
@@ -36,6 +31,11 @@ def register():
         'userid': user_id,
         'password': password
     }
+
+    if db_helper.get_user(user_id):
+        return jsonify({
+            'message': 'User already exists'
+        }), 400
     
     result = db_helper.insert_user(user_data)
     
@@ -178,11 +178,10 @@ def create_quest():
 
 @app.route('/api/get-prompt', methods=['GET'])
 def get_prompt():
-    prompt_pair = random.choice(PROMPTS)
+    prompt = random.choice(PROMPTS)
     
     return jsonify({
-        'prompt': prompt_pair[0],
-        'not_prompt': prompt_pair[1]
+        'prompt': prompt
     }), 200
 
 @app.route('/api/complete-quest', methods=['POST'])
