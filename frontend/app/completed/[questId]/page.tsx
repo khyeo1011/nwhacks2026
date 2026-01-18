@@ -77,6 +77,7 @@ export default function QuestDetailsPage({ params }: { params: Promise<{ questId
 
   const participants = quest.participants || []
   const winner = quest.winner
+  const hasPendingParticipants = participants.some(p => p.score === null || p.time === null)
 
   return (
     <main className="min-h-screen bg-background px-4 py-6">
@@ -105,7 +106,7 @@ export default function QuestDetailsPage({ params }: { params: Promise<{ questId
                 </TableHeader>
                 <TableBody>
                   {participants.map((participant, index) => {
-                    const isWinner = participant.userId === winner
+                    const isWinner = !hasPendingParticipants && participant.userId === winner
                     return (
                       <TableRow
                         key={index}
@@ -123,6 +124,12 @@ export default function QuestDetailsPage({ params }: { params: Promise<{ questId
             </div>
           </CardContent>
         </Card>
+
+        {hasPendingParticipants && (
+          <p className="mt-4 text-center text-muted-foreground">
+            Waiting for all participants to complete the quest.
+          </p>
+        )}
 
         <AlertDialog open={!!selectedParticipant} onOpenChange={(open) => {
           if (!open) {
