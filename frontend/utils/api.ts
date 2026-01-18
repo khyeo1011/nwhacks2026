@@ -48,7 +48,7 @@ export function getCompletedQuests(userId: string): Quest[] {
     return sample
 }
 
-export async function createQuest(prompt: string, hostId: string, userIds: string[], image: any, time: number) {
+export async function createQuest(prompt: string, hostId: string, userIds: string[], image: string, time: number) {
     const response = await fetch(url + "/api/create-quest", {
         method: "POST",
         headers: {
@@ -76,7 +76,7 @@ export async function getPrompt() {
     return response.json()
 }
 
-export async function completeQuest(questId: string, userId: string, image: any, time: number) {
+export async function completeQuest(questId: string, userId: string, image: string, time: number) {
     const response = await fetch(url + "/api/complete-quest", {
         method: "POST",
         headers: {
