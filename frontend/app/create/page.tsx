@@ -89,12 +89,12 @@ export default function CreatePage() {
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Invite Friends</CardTitle>
-                        <CardDescription>Add friends to your quest before starting</CardDescription>
+                        <CardTitle>Assemble Party</CardTitle>
+                        <CardDescription>Gather companions for your quest before starting</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="w-full space-y-3">
-                            <Label htmlFor="inviteUsers">Invite Users</Label>
+                            <Label htmlFor="inviteUsers">Add Adventurers</Label>
                             {invitedUsers.length > 0 && (
                                 <div className="space-y-3">
                                     {invitedUsers.map((userId) => (
