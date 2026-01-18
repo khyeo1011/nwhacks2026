@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { X } from "lucide-react"
 import { Participant, QuestDetails } from "@/types/types"
-import { getQuestDetails } from "@/utils/api"
+import { getQuestDetails, getImage } from "@/utils/api"
 import { useRouter } from "next/navigation"
 import { use, useState, useEffect } from "react"
 
@@ -16,6 +16,8 @@ export default function QuestDetailsPage({ params }: { params: Promise<{ questId
   const [selectedParticipant, setSelectedParticipant] = useState<Participant | null>(null)
   const [quest, setQuest] = useState<QuestDetails | null>(null)
   const [loading, setLoading] = useState(true)
+  const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const [isImageLoading, setIsImageLoading] = useState<boolean>(false)
 
   useEffect(() => {
     const fetchQuest = async () => {
@@ -31,6 +33,24 @@ export default function QuestDetailsPage({ params }: { params: Promise<{ questId
     }
     fetchQuest()
   }, [questId])
+
+  useEffect(() => {
+    if (selectedParticipant) {
+      const fetchImage = async () => {
+        setIsImageLoading(true)
+        try {
+          const imageBase64 = await getImage(questId, selectedParticipant.userId)
+          setSelectedImage(`data:image/jpeg;base64,${imageBase64}`)
+        } catch (error) {
+          console.error("Failed to fetch image:", error)
+          setSelectedImage(null)
+        } finally {
+          setIsImageLoading(false)
+        }
+      }
+      fetchImage()
+    }
+  }, [selectedParticipant, questId])
 
   if (loading) {
     return (
@@ -104,7 +124,12 @@ export default function QuestDetailsPage({ params }: { params: Promise<{ questId
           </CardContent>
         </Card>
 
-        <AlertDialog open={!!selectedParticipant} onOpenChange={(open) => !open && setSelectedParticipant(null)}>
+        <AlertDialog open={!!selectedParticipant} onOpenChange={(open) => {
+          if (!open) {
+            setSelectedParticipant(null);
+            setSelectedImage(null);
+          }
+        }}>
           <AlertDialogContent className="max-w-2xl">
             <button
               onClick={() => setSelectedParticipant(null)}
@@ -117,10 +142,14 @@ export default function QuestDetailsPage({ params }: { params: Promise<{ questId
               <AlertDialogTitle>{selectedParticipant?.userId}&apos;s Photo</AlertDialogTitle>
             </AlertDialogHeader>
             <div className="flex flex-col items-center space-y-4">
-              {selectedParticipant?.photo ? (
+              {isImageLoading ? (
+                <div className="w-full h-64 bg-muted rounded-lg flex items-center justify-center">
+                  <p className="text-muted-foreground">Loading image...</p>
+                </div>
+              ) : selectedImage ? (
                 <img
-                  src={selectedParticipant.photo}
-                  alt={`${selectedParticipant.userId}'s submission`}
+                  src={selectedImage}
+                  alt={`${selectedParticipant?.userId}'s submission`}
                   className="max-w-full h-auto rounded-lg"
                 />
               ) : (

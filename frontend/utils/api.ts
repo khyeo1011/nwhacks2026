@@ -150,3 +150,20 @@ export async function getPoints(userId: string): Promise<number> {
     const data = await response.json();
     return data.points;
 }
+
+export async function getImage(questId: string, userId: string): Promise<string> {
+    const response = await fetch(url + `/api/get-image?questId=${questId}&userId=${userId}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "true",
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.image;
+}
