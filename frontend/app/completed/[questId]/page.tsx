@@ -1,46 +1,46 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { X } from "lucide-react"
-import { Participant } from "@/types/types"
-import { getCompletedQuests } from "@/utils/api"
+import { Participant, QuestDetails } from "@/types/types"
+import { getQuestDetails } from "@/utils/api"
 import { useRouter } from "next/navigation"
-import { use, useState } from "react"
-import { useEffect } from "react"
-import { Quest } from "@/types/types"
-
-const participants: Participant[] = [
-  { questId: 1, userId: 'Alice', score: 100, time: 120, photo: null },
-  { questId: 1, userId: 'Bob', score: 80, time: 150, photo: null },
-  { questId: 1, userId: 'Charlie', score: 90, time: 130, photo: null },
-]
+import { use, useState, useEffect } from "react"
 
 export default function QuestDetailsPage({ params }: { params: Promise<{ questId: string }> }) {
   const router = useRouter()
   const { questId } = use(params)
   const [selectedParticipant, setSelectedParticipant] = useState<Participant | null>(null)
-  const [quest, setQuest] = useState<Quest | null>(null);
+  const [quest, setQuest] = useState<QuestDetails | null>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchQuest = async () => {
-      const quests = await getCompletedQuests(questId);
-      if (Array.isArray(quests)) {
-        const found = quests.find(q => q.questId === Number(questId));
-        setQuest(found || null);
+      try {
+        const questData = await getQuestDetails(questId)
+        setQuest(questData)
+      } catch (error) {
+        console.error("Failed to fetch quest:", error)
+        setQuest(null)
+      } finally {
+        setLoading(false)
       }
-    };
-    fetchQuest();
-  }, [questId]);
+    }
+    fetchQuest()
+  }, [questId])
 
-  // Determine the winner: highest score, with time as tie-breaker (lower time wins)
-  const winner = participants.reduce((prev, current) => {
-    if (current.score > prev.score) return current
-    if (current.score === prev.score && current.time < prev.time) return current
-    return prev
-  }, participants[0])
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-background px-4 py-6">
+        <div className="mx-auto max-w-md">
+          <p className="text-center text-muted-foreground">Loading quest...</p>
+        </div>
+      </main>
+    )
+  }
 
   if (!quest) {
     return (
@@ -54,6 +54,9 @@ export default function QuestDetailsPage({ params }: { params: Promise<{ questId
       </main>
     )
   }
+
+  const participants = quest.participants || []
+  const winner = quest.winner
 
   return (
     <main className="min-h-screen bg-background px-4 py-6">
@@ -82,7 +85,7 @@ export default function QuestDetailsPage({ params }: { params: Promise<{ questId
                 </TableHeader>
                 <TableBody>
                   {participants.map((participant, index) => {
-                    const isWinner = participant.userId === winner.userId
+                    const isWinner = participant.userId === winner
                     return (
                       <TableRow
                         key={index}
@@ -90,8 +93,8 @@ export default function QuestDetailsPage({ params }: { params: Promise<{ questId
                         onClick={() => setSelectedParticipant(participant)}
                       >
                         <TableCell>{participant.userId}{isWinner && ' 🏆'}</TableCell>
-                        <TableCell>{participant.score}</TableCell>
-                        <TableCell>{participant.time}</TableCell>
+                        <TableCell>{participant.score ?? 'N/A'}</TableCell>
+                        <TableCell>{participant.time ?? 'N/A'}</TableCell>
                       </TableRow>
                     )
                   })}
