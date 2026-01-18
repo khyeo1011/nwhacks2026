@@ -64,11 +64,16 @@ export default function CreateQuestPage() {
         
         setSubmitting(true)
         try {
+            // Remove the data URL prefix (e.g., "data:image/jpeg;base64,")
+            const base64Image = capturedImage.split(',')[1]
+
+            console.log(base64Image)
+            
             const response = await createQuest(
                 prompt,
                 auth.userId,
                 invitedUsers,
-                capturedImage,
+                base64Image,
                 elapsedTime
             )
             

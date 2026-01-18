@@ -9,7 +9,7 @@ from prompts import PROMPTS
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
 
 db_helper = DBHelper(
     url=os.getenv('SUPABASE_URL'),
@@ -173,56 +173,66 @@ def get_completed_quests():
     
     return jsonify({'quests': formatted_quests}), 200
 
-@app.route('/api/create-quest', methods=['POST'])
+@app.route('/api/create-quest', methods=['POST', 'OPTIONS'])
 def create_quest():
-    data = request.get_json()
-    prompt = data.get('prompt')
-    host_id = data.get('hostId')
-    user_ids = data.get('userIds')
-    image = data.get('image')
-    time = data.get('time')
+    if request.method == 'OPTIONS':
+        return '', 204
     
-    import time as time_module
-    
-    quest_data = {
-        'prompt': prompt,
-        'datecreated': int(time_module.time()),
-        'hostid': host_id
-    }
-    
-    quest_result = db_helper.insert_quest(quest_data)
-    quest_id = quest_result.get('questid')
-    
-    participants_data = []
-
-    score = get_clip_score(image, prompt)
-    
-    for user_id in user_ids:
-        participant = {
-            'questid': quest_id,
-            'userid': user_id,
-            'score': None,
-            'timetaken': None,
-            'photo': None
+    try:
+        data = request.get_json()
+        prompt = data.get('prompt')
+        host_id = data.get('hostId')
+        user_ids = data.get('userIds')
+        image = data.get('photo')  # Changed from 'image' to 'photo' to match frontend
+        time = data.get('time')
+        
+        import time as time_module
+        
+        quest_data = {
+            'prompt': prompt,
+            'datecreated': int(time_module.time()),
+            'hostid': host_id
         }
-        participants_data.append(participant)
-    
-    host = {
-        'questid': quest_id,
-        'userid': host_id,
-        'score': score,
-        'timetaken': time,
-        'photo': image
-    }
-    participants_data.append(host)
-    db_helper.insert_participants(participants_data)
-    
-    return jsonify({
-        'message': 'Quest created successfully',
-        'questId': quest_id,
-        'score': score,
-        'timetaken': time
-    }), 201
+        
+        quest_result = db_helper.insert_quest(quest_data)
+        quest_id = quest_result.get('questid')
+        
+        participants_data = []
+
+        score = get_clip_score(image, prompt)
+        
+        for user_id in user_ids:
+            participant = {
+                'questid': quest_id,
+                'userid': user_id,
+                'score': None,
+                'timetaken': None,
+                'photo': None
+            }
+            participants_data.append(participant)
+        
+        host = {
+            'questid': quest_id,
+            'userid': host_id,
+            'score': score,
+            'timetaken': time,
+            'photo': image
+        }
+        participants_data.append(host)
+        db_helper.insert_participants(participants_data)
+        
+        return jsonify({
+            'message': 'Quest created successfully',
+            'questId': quest_id,
+            'score': score,
+            'timetaken': time
+        }), 201
+    except Exception as e:
+        print(f"Error in create_quest: {str(e)}")
+        return jsonify({
+            'message': 'Failed to create quest',
+            'error': str(e)
+        }), 500
 
 @app.route('/api/get-prompt', methods=['GET'])
 def get_prompt():

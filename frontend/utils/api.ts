@@ -59,7 +59,7 @@ export async function createQuest(prompt: string, hostId: string, userIds: strin
             "Content-Type": "application/json",
             "ngrok-skip-browser-warning": "true",
         },
-        body: JSON.stringify({ prompt: prompt, hostId: hostId, userIds: userIds, photo: image, time: time }),
+        body: JSON.stringify({ prompt: prompt, hostId: hostId, userIds: userIds, image: image, time: time }),
     })
     return response.json()
 }
