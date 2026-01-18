@@ -50,8 +50,15 @@ export function getCompletedQuests(userId: string): Quest[] {
     return sample
 }
 
-function createQuest(prompt: string, hostId: string, userIds: string[], image: any, time: number) {
-    return
+export async function createQuest(prompt: string, hostId: string, userIds: string[], image: any, time: number) {
+    const response = await fetch(url + "/api/create-quest", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ prompt: prompt, hostId: hostId, userIds: userIds, photo: image, time: time }),
+    })
+    return response.json()
 }
 
 export async function getPrompt() {
@@ -69,8 +76,15 @@ export async function getPrompt() {
     return response.json()
 }
 
-function completeQuest(questId: string, userId: string, image: any, time: number) {
-    return
+export async function completeQuest(questId: string, userId: string, image: any, time: number) {
+    const response = await fetch(url + "/api/complete-quest", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ questId: questId, userId: userId, photo: image, time: time }),
+    })
+    return response.json()
 }
 
 function getQuestDetails(questId: string): QuestDetails {
