@@ -22,9 +22,11 @@ export default function RegisterPage() {
             const response = await register(userId, password)
             console.log("Registration response:", response)
             
-            // Check if registration was successful
-            if (response.error || response.message?.includes("exists") || response.message?.includes("failed")) {
-                setError(response.message || "Registration failed. User ID may already exist.")
+            // Check if the message indicates user already exists
+            if (response.message === "User already exists") {
+                setError("User already exists. Please choose a different User ID.")
+            } else if (response.error || response.message?.includes("failed")) {
+                setError(response.message || "Registration failed. Please try again.")
             } else {
                 // Handle successful registration
                 router.push("/")

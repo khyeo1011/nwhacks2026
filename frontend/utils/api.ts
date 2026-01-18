@@ -8,7 +8,7 @@ export async function register(userId: string, password: string) {
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({ userID: userId, password }),
+        body: JSON.stringify({ userId: userId, password }),
     })
     return response.json()
 }
