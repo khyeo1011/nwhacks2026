@@ -89,8 +89,8 @@ export default function PendingPage() {
                       className="w-full justify-start text-left bg-transparent"
                       onClick={() => handleQuestClick(quest.questId)}
                     >
-                      <div className="flex flex-col gap-1 w-full">
-                        <span>{quest.hostId}</span>
+                      <div className="flex justify-between items-center w-full">
+                        <span>Invited By: {quest.hostId}</span>
                         <span className="text-xs text-muted-foreground">
                           {new Date(quest.date).toLocaleDateString('en-US', { 
                             year: 'numeric', 
