@@ -37,7 +37,7 @@ export default function CompletedPage() {
     <main className="min-h-screen bg-background px-4 py-6">
       <div className="mx-auto max-w-md">
         <Button
-          variant="ghost"
+          variant="outline2"
           className="mb-4"
           onClick={() => router.push("/")}
         >
@@ -52,7 +52,7 @@ export default function CompletedPage() {
           <CardContent>
             <div className="flex flex-col gap-3">
               {isLoading ? (
-                <p className="text-center text-muted-foreground">Loading...</p>
+                <p className="text-center text-muted-foreground">Retrieving...</p>
               ) : (
                 <>
                   {completedQuests.map((quest) => (
@@ -62,7 +62,7 @@ export default function CompletedPage() {
                       className="w-full justify-start text-left bg-transparent"
                       onClick={() => handleQuestClick(quest.questId)}
                     >
-                      {quest.hostId}
+                      Invited by : {quest.hostId} | ({quest.prompt})
                     </Button>
                   ))}
                   {completedQuests.length === 0 && (

@@ -6,6 +6,11 @@ import { AlertDialog as AlertDialogPrimitive } from "radix-ui"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 
+/**
+ * Pixel RPG Bulletin Board AlertDialog
+ * Matches the parchment aesthetic and blocky geometry of the card/dialog system.
+ */
+
 function AlertDialog({
   ...props
 }: React.ComponentProps<typeof AlertDialogPrimitive.Root>) {
@@ -35,7 +40,10 @@ function AlertDialogOverlay({
   return (
     <AlertDialogPrimitive.Overlay
       data-slot="alert-dialog-overlay"
-      className={cn("data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs fixed inset-0 z-50", className)}
+      className={cn(
+        "fixed inset-0 z-50 bg-black/60 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+        className
+      )}
       {...props}
     />
   )
@@ -55,11 +63,20 @@ function AlertDialogContent({
         data-slot="alert-dialog-content"
         data-size={size}
         className={cn(
-          "data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 bg-background ring-foreground/10 gap-6 rounded-xl p-6 ring-1 duration-100 data-[size=default]:max-w-xs data-[size=sm]:max-w-xs data-[size=default]:sm:max-w-lg group/alert-dialog-content fixed top-1/2 left-1/2 z-50 grid w-full -translate-x-1/2 -translate-y-1/2 outline-none",
+          "fixed left-[50%] top-[50%] z-50 grid w-full -translate-x-1/2 -translate-y-1/2 gap-6",
+          "bg-[#f4dcb3] text-[#3e2723] border-[4px] border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,0.4)]",
+          "data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 duration-100",
+          "data-[size=default]:max-w-xs data-[size=sm]:max-w-xs data-[size=default]:sm:max-w-lg group/alert-dialog-content outline-none",
           className
         )}
+        style={{ imageRendering: "pixelated" }}
         {...props}
-      />
+      >
+        {/* Visual Pushpin Decor */}
+        <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-6 h-6 bg-[#d32f2f] border-[3px] border-black z-10 shadow-[2px_2px_0px_0px_rgba(0,0,0,0.3)]" />
+        
+        {props.children}
+      </AlertDialogPrimitive.Content>
     </AlertDialogPortal>
   )
 }
@@ -71,7 +88,12 @@ function AlertDialogHeader({
   return (
     <div
       data-slot="alert-dialog-header"
-      className={cn("grid grid-rows-[auto_1fr] place-items-center gap-1.5 text-center has-data-[slot=alert-dialog-media]:grid-rows-[auto_auto_1fr] has-data-[slot=alert-dialog-media]:gap-x-6 sm:group-data-[size=default]/alert-dialog-content:place-items-start sm:group-data-[size=default]/alert-dialog-content:text-left sm:group-data-[size=default]/alert-dialog-content:has-data-[slot=alert-dialog-media]:grid-rows-[auto_1fr]", className)}
+      className={cn(
+        "grid grid-rows-[auto_1fr] place-items-center gap-2 text-center",
+        "border-b-[4px] border-black/10 pb-4 mb-2",
+        "sm:group-data-[size=default]/alert-dialog-content:place-items-start sm:group-data-[size=default]/alert-dialog-content:text-left",
+        className
+      )}
       {...props}
     />
   )
@@ -85,7 +107,7 @@ function AlertDialogFooter({
     <div
       data-slot="alert-dialog-footer"
       className={cn(
-        "flex flex-col-reverse gap-2 group-data-[size=sm]/alert-dialog-content:grid group-data-[size=sm]/alert-dialog-content:grid-cols-2 sm:flex-row sm:justify-end",
+        "flex flex-col-reverse gap-3 sm:flex-row sm:justify-end",
         className
       )}
       {...props}
@@ -100,7 +122,11 @@ function AlertDialogMedia({
   return (
     <div
       data-slot="alert-dialog-media"
-      className={cn("bg-muted mb-2 inline-flex size-16 items-center justify-center rounded-md sm:group-data-[size=default]/alert-dialog-content:row-span-2 *:[svg:not([class*='size-'])]:size-8", className)}
+      className={cn(
+        "bg-[#d7ba8d] mb-2 inline-flex size-16 items-center justify-center border-[3px] border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,0.2)]",
+        "sm:group-data-[size=default]/alert-dialog-content:row-span-2",
+        className
+      )}
       {...props}
     />
   )
@@ -113,7 +139,12 @@ function AlertDialogTitle({
   return (
     <AlertDialogPrimitive.Title
       data-slot="alert-dialog-title"
-      className={cn("text-lg font-medium sm:group-data-[size=default]/alert-dialog-content:group-has-data-[slot=alert-dialog-media]/alert-dialog-content:col-start-2", className)}
+      className={cn(
+        "text-4xl leading-none tracking-wide",
+        "sm:group-data-[size=default]/alert-dialog-content:group-has-data-[slot=alert-dialog-media]/alert-dialog-content:col-start-2",
+        className
+      )}
+      style={{ fontFamily: "var(--font-heading)" }}
       {...props}
     />
   )
@@ -126,7 +157,11 @@ function AlertDialogDescription({
   return (
     <AlertDialogPrimitive.Description
       data-slot="alert-dialog-description"
-      className={cn("text-muted-foreground *:[a]:hover:text-foreground text-sm text-balance md:text-pretty *:[a]:underline *:[a]:underline-offset-3", className)}
+      className={cn(
+        "text-xl leading-snug text-[#3e2723]/90",
+        className
+      )}
+      style={{ fontFamily: "var(--font-body)" }}
       {...props}
     />
   )

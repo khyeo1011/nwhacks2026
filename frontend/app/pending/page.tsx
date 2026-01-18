@@ -64,7 +64,7 @@ export default function PendingPage() {
     <main className="min-h-screen bg-background px-4 py-6">
       <div className="mx-auto max-w-md">
         <Button
-          variant="ghost"
+          variant="outline2"
           className="mb-4"
           onClick={() => router.push("/")}
         >
@@ -89,10 +89,10 @@ export default function PendingPage() {
                       className="w-full justify-start text-left bg-transparent"
                       onClick={() => handleQuestClick(quest.questId)}
                     >
-                      <div className="flex flex-col gap-1 w-full">
-                        <span>{quest.hostId}</span>
+                      <div className="flex justify-between items-center w-full">
+                        <span>Invited By: {quest.hostId}</span>
                         <span className="text-xs text-muted-foreground">
-                          {new Date(quest.date).toLocaleDateString('en-US', { 
+                          {new Date(quest.date * 1000).toLocaleDateString('en-US', { 
                             year: 'numeric', 
                             month: 'short', 
                             day: 'numeric' 
